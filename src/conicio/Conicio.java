@@ -62,7 +62,7 @@ public class Conicio {
 		// timed rendering
 		long startTime = System.nanoTime();
 		try {
-			String filename = String.format("render-%s.png", (new Date()).toString().replace(" ", "-"));
+			String filename = String.format("img/render-%s.png", (new Date()).toString().replace(" ", "-"));
 			Renderer renderer = new Renderer(scene, camera, xSize, ySize);
 			renderer.run();
 			BufferedImage image = new BufferedImage(xSize, ySize, BufferedImage.TYPE_INT_RGB);
