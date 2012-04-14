@@ -52,6 +52,11 @@ public abstract class Scene<C extends Color<C>> {
 	/**
 	 *
 	 **/
+	public abstract Camera camera();
+	
+	/**
+	 *
+	 **/
 	public abstract int xSize();
 	
 	/**

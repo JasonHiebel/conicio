@@ -10,13 +10,6 @@ import java.awt.image.*;
 public class Conicio {
 
 	public static void main(String[] args) {
-		Camera camera = new Camera(
-			new Vector3( 3.0,  5.0,  1.0),
-			new Vector3( 0.0,  0.0,  0.2),
-			new Vector3( 0.0,  0.0,  1.0), 
-			Math.PI / 6.0
-		);
-		
 		if(args.length == 0) { 
 			System.err.println("ERROR: No scene specified"); 
 			return;	
@@ -33,7 +26,7 @@ public class Conicio {
 			Class<?> sceneClass = Class.forName(args[args.length - 1]);
 			Scene<?> scene      = (Scene<?>)sceneClass.newInstance();
 		
-			Renderer<?> renderer = Renderer.create(scene, camera);
+			Renderer<?> renderer = Renderer.create(scene);
 			
 			if(visual) {
 				Visualizer visualizer = new Visualizer(renderer);

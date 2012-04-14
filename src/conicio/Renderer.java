@@ -37,15 +37,13 @@ public class Renderer<C extends Color<C>> implements Runnable {
 	 * Constructs a Renderer which renders an image as described by the given
 	 * Scene with perspective as given by the Camera.
 	 *
-	 * @param scene  the scene description
-	 * @param camera the perspective of the rendered image
+	 * @param scene the scene description
 	 **/
-	public Renderer(Scene<C> scene, Camera camera) { 
+	public Renderer(Scene<C> scene) { 
 		this.maxDepth = 3;
 	
 		this.scene    = scene;
-		this.camera   = camera;
-		
+		this.camera   = scene.camera();
 		this.xSize    = scene.xSize();
 		this.ySize    = scene.ySize();
 
@@ -293,7 +291,7 @@ public class Renderer<C extends Color<C>> implements Runnable {
 	/**
 	 *
 	 **/
-	public static <C extends Color<C>> Renderer<C> create(Scene<C> scene, Camera camera) {
-		return new Renderer<C>(scene, camera);
+	public static <C extends Color<C>> Renderer<C> create(Scene<C> scene) {
+		return new Renderer<C>(scene);
 	}
 }
