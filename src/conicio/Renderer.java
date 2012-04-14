@@ -212,11 +212,9 @@ public class Renderer<C extends Color<C>> implements Runnable {
 		if(refractIndex <= 0.0) { return scene.factory.black(); }
 
 		/* refract ray in to the object */
-		Ray internal = new Ray(
-			intersection,
-			ray.normal.refract(intersected.normal(intersection), 1.0, refractIndex)
-		);
-		if(internal.normal == null) { return scene.factory.white(); }
+		Vector3 inner = ray.normal.refract(intersected.normal(intersection), 1.0, refractIndex);
+		if(inner == null) { return scene.factory.white(); }
+		Ray internal = new Ray(intersection, inner);
 
 		Ray external = null;
 		double[] candidates = internal.intersect(intersected);
@@ -224,11 +222,9 @@ public class Renderer<C extends Color<C>> implements Runnable {
 			intersection = internal.cast(candidates[0]);
 
 			/* refract ray out of the object */
-			external = new Ray(
-				intersection,
-				internal.normal.refract(intersected.normal(intersection).neg(), refractIndex, 1.0)
-			);
-			if(external.normal == null) { external = internal; }
+			Vector3 outer = internal.normal.refract(intersected.normal(intersection).neg(), refractIndex, 1.0);
+			if(outer == null) { external = internal;                     }
+			else              { external = new Ray(intersection, outer); }
 		}
 
 		// beer's law?
