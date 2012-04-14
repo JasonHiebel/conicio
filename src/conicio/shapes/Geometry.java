@@ -1,4 +1,4 @@
-package conicio.shape;
+package conicio.shapes;
 
 import conicio.*;
 import conicio.util.*;
@@ -13,14 +13,14 @@ public abstract class Geometry {
 	/**
 	 *
 	 **/
-	public abstract class Union extends Shape {
+	public abstract class Union<C extends Color<C>> extends Shape<C> {
 	
-		private final Collection<Shape> shapes = new HashSet<Shape>();
+		private final Collection<Shape<C>> shapes = new HashSet<Shape<C>>();
 	
 		/**
 		 *
 		 **/
-		public Union(Material material, Shape... shapes) {
+		public Union(Material<C> material, Shape<C>... shapes) {
 			super(material);
 		}
 	
@@ -43,14 +43,14 @@ public abstract class Geometry {
 	/**
 	 *
 	 **/
-	public static class Intersect extends Shape {
+	public static class Intersect<C extends Color<C>> extends Shape<C> {
 	
-		private final Collection<Shape> shapes = new HashSet<Shape>();
+		private final Collection<Shape<C>> shapes = new HashSet<Shape<C>>();
 	
 		/**
 		 *
 		 **/
-		public Intersect(Material material, Shape... shapes) {
+		public Intersect(Material<C> material, Shape<C>... shapes) {
 			super(material);
 			Collections.addAll(this.shapes, shapes);
 		}
@@ -60,7 +60,7 @@ public abstract class Geometry {
 	 	 **/
 		public Vector3 normal(Vector3 point) {
 			//System.out.println("" + point);
-			for(Shape shape : shapes) {
+			for(Shape<C> shape : shapes) {
 				//System.out.println("    " + shape + ", " + shape.intersects(point) + ", " + shape.contains(point) + ", " + point.sub(((Sphere)shape).origin).normSq() + ", " + ((Sphere)shape).radius * ((Sphere)shape).radius);
 				if(shape.intersects(point)) {
 					boolean internal = true;
@@ -108,7 +108,7 @@ public abstract class Geometry {
 			//System.out.println(ray);
 			
 			List<Double> intersections = new LinkedList<Double>();
-			for(Shape shape : shapes) {
+			for(Shape<C> shape : shapes) {
 				//System.out.println("  " + shape);
 			
 				double[] candidates = ray.intersect(shape);
@@ -116,7 +116,7 @@ public abstract class Geometry {
 					//System.out.println("    " + candidate);
 				
 					boolean internal = true;
-					for(Shape test : shapes) {
+					for(Shape<C> test : shapes) {
 						//System.out.println("      " + test + ", " + ray.origin.add(ray.normal.mul(candidate)) + ", " + test.contains(ray.origin.add(ray.normal.mul(candidate))));
 						if(!shape.equals(test) && !test.contains(ray.origin.add(ray.normal.mul(candidate)))) {
 							internal = false;

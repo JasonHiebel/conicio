@@ -1,6 +1,6 @@
 package conicio;
 
-import conicio.shape.*;
+import conicio.shapes.*;
 import conicio.util.*;
 
 import java.util.*;
@@ -8,7 +8,7 @@ import java.util.*;
 /**
  *
  **/
-public class PointLight extends Light {
+public class PointLight<C extends Color<C>> extends Light<C> {
 
 	/**
 	 *
@@ -18,7 +18,7 @@ public class PointLight extends Light {
 	/**
 	 *
 	 **/
-	public PointLight(Vector3 origin, Color color) {
+	public PointLight(Vector3 origin, C color) {
 		super(color);
 		this.origin = origin;
 	}
@@ -26,10 +26,10 @@ public class PointLight extends Light {
 	/**
 	 *
 	 **/
-	public boolean illuminated(Vector3 point, Scene scene) {
+	public boolean illuminated(Vector3 point, Scene<C> scene) {
 		Ray ray = new Ray(point, origin.sub(point).normalize());
 		
-		SortedMap<Double, Shape> intersections = scene.collisions(ray);
+		SortedMap<Double, Shape<C>> intersections = scene.collisions(ray);
 		return intersections.headMap(origin.sub(point).norm()).isEmpty();
 	}
 
@@ -51,5 +51,15 @@ public class PointLight extends Light {
 		}
 
 		return photons;
+	}
+	
+	/**
+	 *
+	 **/
+	/**
+	 *
+	 **/
+	public static <C extends Color<C>> PointLight<C> create(Vector3 origin, C color) {
+		return new PointLight<C>(origin, color);
 	}
 }

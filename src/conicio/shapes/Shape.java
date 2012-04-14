@@ -1,4 +1,4 @@
-package conicio.shape;
+package conicio.shapes;
 
 import conicio.*;
 import conicio.util.*;
@@ -6,17 +6,17 @@ import conicio.util.*;
 /**
  *
  **/
-public abstract class Shape {
+public abstract class Shape<C extends Color<C>> {
 
 	/**
 	 *
 	 **/
-	public final Material material;
+	public final Material<C> material;
 
 	/**
 	 *
 	 **/
-	protected Shape(Material material) {
+	protected Shape(Material<C> material) {
 		this.material = material;
 	}
 
@@ -50,7 +50,7 @@ public abstract class Shape {
 	/**
 	 *
 	 **/
-	public Material material() {
+	public Material<C> material() {
 		return material;
 	}
 }

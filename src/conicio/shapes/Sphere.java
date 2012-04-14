@@ -1,4 +1,4 @@
-package conicio.shape;
+package conicio.shapes;
 
 import conicio.*;
 import conicio.util.*;
@@ -6,7 +6,7 @@ import conicio.util.*;
 /**
  *
  **/
-public class Sphere extends Shape {
+public class Sphere<C extends Color<C>> extends Shape<C> {
 
 	/**
 	 *
@@ -21,7 +21,7 @@ public class Sphere extends Shape {
 	/**
 	 *
 	 **/
-	public Sphere(Vector3 origin, double radius, Material material) {
+	public Sphere(Vector3 origin, double radius, Material<C> material) {
 		super(material);
 
 		this.origin = origin;
@@ -77,5 +77,12 @@ public class Sphere extends Shape {
 	 **/
 	public String toString() {
 		return String.format("[ Sphere : %s, %f ]", origin, radius);
+	}
+	
+	/**
+	 *
+	 **/
+	public static <C extends Color<C>> Sphere<C> create(Vector3 origin, double radius, Material<C> material) {
+		return new Sphere<C>(origin, radius, material);
 	}
 }

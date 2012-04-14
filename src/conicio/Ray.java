@@ -1,7 +1,7 @@
 package conicio;
 
-import conicio.shape.Shape;
-import conicio.util.Vector3;
+import conicio.shapes.*;
+import conicio.util.*;
 
 /**
  *
@@ -36,14 +36,14 @@ public class Ray {
 	/**
 	 *
 	 **/
-	public final double[] intersect(Shape shape) {
+	public final double[] intersect(Shape<?> shape) {
 		return shape.intersect(this);
 	}
 
 	/**
 	 *
 	 **/
-	public final boolean intersects(Shape shape) {
+	public final boolean intersects(Shape<?> shape) {
 		return shape.intersects(this);
 	}
 }

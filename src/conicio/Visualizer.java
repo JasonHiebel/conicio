@@ -1,6 +1,6 @@
 package conicio;
 
-import conicio.shape.*;
+import conicio.shapes.*;
 import conicio.util.*;
 
 import java.util.*;
@@ -50,12 +50,14 @@ public class Visualizer implements Runnable {
 	 *
 	 **/
 	public class GraphicsPane extends Component {
-		protected final Renderer renderer;
+		public static final long serialVersionUID = 1L;
+	
+		protected final Renderer<?> renderer;
 		
 		/**
 		 *
 		 **/
-		public GraphicsPane(Renderer renderer) {
+		public GraphicsPane(Renderer<?> renderer) {
 			this.renderer = renderer;
 			
 			Image result = renderer.result();
@@ -81,28 +83,21 @@ public class Visualizer implements Runnable {
 			Math.PI / 6.0
 		);
 
-		Scene scene = new Scene();
+		Scene<RGBColor> scene = new Scene<RGBColor>(RGBColor.FACTORY);
 
-		scene.lights.add(new PointLight(new Vector3( 0.0,  2.0,  5.0), new Color(1.0, 1.0, 1.0)));
+		// add debug lights
+		scene.lights.add(PointLight.create(new Vector3( 0.0,  2.0,  5.0), new RGBColor(1.0, 1.0, 1.0)));
 
-		scene.shapes.add(new Plane(new Vector3( 0.0,  0.0,  0.0), new Vector3( 0.0,  0.0,  1.0), Material.CHROME));
-		scene.shapes.add(new Sphere(new Vector3(-0.9, -1.0,  0.1), 0.1, Material.TURQUOISE));
-		scene.shapes.add(new Sphere(new Vector3( 0.2,  0.0,  0.2), 0.2, Material.EMERALD));
-		scene.shapes.add(new Sphere(new Vector3( 0.8, -0.4,  0.2), 0.2, Material.EMERALD));
-		scene.shapes.add(new Sphere(new Vector3(-0.8, -0.4,  0.2), 0.2, 
-			new Material(
-				new Color(1.000000, 0.000000, 0.000000),
-				new Color(1.000000, 0.000000, 0.000000),
-				new Color(1.000000, 0.000000, 0.000000), 
-				90.0, 0.10, 1.40, 0.50
-			)
-		));
-		scene.shapes.add(new Sphere(new Vector3(-0.2, -0.8,  0.2), 0.2, Material.TURQUOISE));
-
+		// add debug shapes
+		scene.shapes.add( Plane.create(new Vector3( 0.0,  0.0,  0.0), new Vector3( 0.0,  0.0,  1.0), RGBColor.CHROME));
+		scene.shapes.add(Sphere.create(new Vector3(-0.9, -1.0,  0.1), 0.1, RGBColor.TURQUOISE));
+		scene.shapes.add(Sphere.create(new Vector3( 0.2,  0.0,  0.2), 0.2, RGBColor.GLASS));
+		scene.shapes.add(Sphere.create(new Vector3( 0.8, -0.4,  0.2), 0.2, RGBColor.EMERALD));
+		scene.shapes.add(Sphere.create(new Vector3(-0.2, -0.8,  0.2), 0.2, RGBColor.TURQUOISE));
 
 		try {
 			String filename = String.format("render-%s.png", (new Date()).toString().replace(" ", "-"));
-			Renderer renderer = new Renderer(scene, camera, xSize, ySize);
+			Renderer<?> renderer = new Renderer<RGBColor>(scene, camera, xSize, ySize);
 			
 			Visualizer visualizer = new Visualizer(renderer);
 			new Thread(visualizer).start();

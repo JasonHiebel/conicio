@@ -7,17 +7,17 @@ import java.util.*;
 /**
  *
  **/
-public abstract class Light {
+public abstract class Light<C extends Color<C>> {
 
 	/**
 	 *
 	 **/
-	public final Color color;
+	public final C color;
 
 	/**
 	 *
 	 **/
-	public Light(Color color) {
+	public Light(C color) {
 		this.color = color;
 	}
 
@@ -29,7 +29,7 @@ public abstract class Light {
 	/**
 	 *
 	 **/
-	public abstract boolean illuminated(Vector3 point, Scene scene);
+	public abstract boolean illuminated(Vector3 point, Scene<C> scene);
 
 	/**
 	 *

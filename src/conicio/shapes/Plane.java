@@ -1,4 +1,4 @@
-package conicio.shape;
+package conicio.shapes;
 
 import conicio.*;
 import conicio.util.*;
@@ -6,7 +6,7 @@ import conicio.util.*;
 /**
  *
  **/
-public class Plane extends Shape {
+public class Plane<C extends Color<C>> extends Shape<C> {
 
 	/**
 	 *
@@ -21,7 +21,7 @@ public class Plane extends Shape {
 	/**
 	 *
 	 */
-	public Plane(Vector3 origin, Vector3 normal, Material material) {
+	public Plane(Vector3 origin, Vector3 normal, Material<C> material) {
 		super(material);
 
 		this.origin = origin;
@@ -64,5 +64,12 @@ public class Plane extends Shape {
 	 **/
 	public String toString() {
 		return String.format("[ Plane : %s, %s ]", origin, normal);
+	}
+	
+	/**
+	 *
+	 **/
+	public static <C extends Color<C>> Plane<C> create(Vector3 origin, Vector3 normal, Material<C> material) {
+		return new Plane<C>(origin, normal, material);
 	}
 }

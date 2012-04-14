@@ -1,58 +1,45 @@
 package conicio;
 
-import conicio.shape.*;
+import conicio.shapes.*;
 import conicio.util.*;
 import java.util.*;
 
 /**
  *
  **/
-public class Scene {
+public class Scene<C extends Color<C>> {
+
+	/** **/
+	public final Collection<Shape<C>> shapes;
+
+	/** **/
+	public final Collection<Light<C>> lights;
+
+	/** The color factory, for the specification of default colors **/
+	protected final ColorFactory<C> factory;
 
 	/**
 	 *
 	 **/
-	public final Collection<Shape> shapes;
-
-	/**
-	 *
-	 **/
-	public final Collection<Light> lights;
-
-	/**
-	 *
-	 **/
-	public final LightModel lightModel;
-
-	/**
-	 *
-	 **/
-	protected Scene(LightModel lightModel, Collection<Shape> shapes, Collection<Light> lights) {
-		this.lightModel = lightModel;
-		this.shapes     = shapes;
-		this.lights     = lights;
+	protected Scene(Collection<Shape<C>> shapes, Collection<Light<C>> lights, ColorFactory<C> factory) {
+		this.shapes  = shapes;
+		this.lights  = lights;
+		this.factory = factory;
 	}
 
 	/**
 	 *
 	 **/
-	public Scene(LightModel lightModel) {
-		this(lightModel, new HashSet<Shape>(), new HashSet<Light>());
+	public Scene(ColorFactory<C> factory) {
+		this(new HashSet<Shape<C>>(), new HashSet<Light<C>>(), factory);
 	}
 
 	/**
 	 *
 	 **/
-	public Scene() {
-		this(new LightModel(), new HashSet<Shape>(), new HashSet<Light>());
-	}
-
-	/**
-	 *
-	 **/
-	public SortedMap<Double, Shape> collisions(Ray ray) {
-		SortedMap<Double, Shape> intersections = new TreeMap<Double, Shape>();
-		for(Shape shape : shapes) {
+	public SortedMap<Double, Shape<C>> collisions(Ray ray) {
+		SortedMap<Double, Shape<C>> intersections = new TreeMap<Double, Shape<C>>();
+		for(Shape<C> shape : shapes) {
 			double[] candidates = ray.intersect(shape);
 			if(candidates.length != 0) {
 				intersections.put(candidates[0], shape);
