@@ -25,8 +25,6 @@ public class Renderer<C extends Color<C>> implements Runnable {
 
 	/** The viewing plane pixel height. **/
 	protected final int ySize;
-	
-	
 
 	/** The backing pixel matrix. **/
 	protected final int[] pixels;
@@ -41,16 +39,15 @@ public class Renderer<C extends Color<C>> implements Runnable {
 	 *
 	 * @param scene  the scene description
 	 * @param camera the perspective of the rendered image
-	 * @param xSize  the viewing plane pixel width
-	 * @param ySize  the viewing plane pixel height
 	 **/
-	public Renderer(Scene<C> scene, Camera camera, int xSize, int ySize) { 
+	public Renderer(Scene<C> scene, Camera camera) { 
 		this.maxDepth = 3;
 	
 		this.scene    = scene;
 		this.camera   = camera;
-		this.xSize    = xSize;
-		this.ySize    = ySize;
+		
+		this.xSize    = scene.xSize();
+		this.ySize    = scene.ySize();
 
 		/* setup image background buffer */
 		this.pixels   = new int[xSize * ySize];
@@ -87,7 +84,9 @@ public class Renderer<C extends Color<C>> implements Runnable {
 				C color = scene.factory.black();
 
 				// multisampling
-				Vector3 normal = base.sub(du.mul(x - xSize / 2.0)).add(dv.mul(y - ySize / 2.0));
+				Vector3 normal = base;
+				normal = normal.sub(du.mul(x - xSize / 2.0));
+				normal = normal.add(dv.mul(y - ySize / 2.0));
 
 				Ray ray = new Ray(camera.eye, normal);
 				color = color.add(castRay(ray).scale(1.0 / samples));
@@ -95,6 +94,14 @@ public class Renderer<C extends Color<C>> implements Runnable {
 				pixels[y * xSize + x] = color.asRGB();
 			}
 		}
+	}
+	
+	/**
+	 *
+	 **/
+	public Image result() {
+		source.newPixels();
+		return buffer;
 	}
 
 	/**
@@ -114,14 +121,6 @@ public class Renderer<C extends Color<C>> implements Runnable {
 		return photonMap;
 	}
 	*/
-
-	/**
-	 *
-	 **/
-	public Image result() {
-		source.newPixels();
-		return buffer;
-	}
 
 	/**
 	 *
@@ -200,7 +199,8 @@ public class Renderer<C extends Color<C>> implements Runnable {
 			(ray.normal).reflect(intersected.normal(intersection))
 		);
 		
-		C masked = intersected.material.ambient.mask(castPrimary(reflection, depth + 1));
+		C masked = intersected.material.ambient;
+		  masked = masked.mask (castPrimary(reflection, depth + 1));
 		  masked = masked.scale(reflectIndex);
 		return masked;
 	}
@@ -238,7 +238,8 @@ public class Renderer<C extends Color<C>> implements Runnable {
 		// model of beer's law with 1 - a as a density metric
 		
 		//double dist = (candidates.length != 0 ? candidates[0] : 10000.0);
-		C masked = intersected.material.ambient.mask(castPrimary(external, depth + 1));
+		C masked = intersected.material.ambient;
+		  masked = masked.mask(castPrimary(external, depth + 1));
 		//  masked.scale(Math.pow(Math.E, -(intersected.material.refract * dist));
 		
 		return masked;
@@ -292,7 +293,7 @@ public class Renderer<C extends Color<C>> implements Runnable {
 	/**
 	 *
 	 **/
-	public static <C extends Color<C>> Renderer<C> create(Scene<C> scene, Camera camera, int xSize, int ySize) {
-		return new Renderer<C>(scene, camera, xSize, ySize);
+	public static <C extends Color<C>> Renderer<C> create(Scene<C> scene, Camera camera) {
+		return new Renderer<C>(scene, camera);
 	}
 }

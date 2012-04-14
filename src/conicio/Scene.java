@@ -7,7 +7,7 @@ import java.util.*;
 /**
  *
  **/
-public class Scene<C extends Color<C>> {
+public abstract class Scene<C extends Color<C>> {
 
 	/** **/
 	public final Collection<Shape<C>> shapes;
@@ -48,6 +48,16 @@ public class Scene<C extends Color<C>> {
 		
 		return intersections;
 	}
+	
+	/**
+	 *
+	 **/
+	public abstract int xSize();
+	
+	/**
+	 *
+	 **/
+	public abstract int ySize();
 }
 
 
