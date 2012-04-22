@@ -49,8 +49,7 @@ public class Conicio {
 				);
 				image.getGraphics().drawImage(
 					renderer.result(), 
-					0, 0, scene.xSize(), scene.ySize(), 
-					null
+					0, 0, scene.xSize(), scene.ySize(), null
 				);
 				ImageIO.write(image, "png", new File(filename));
 			}

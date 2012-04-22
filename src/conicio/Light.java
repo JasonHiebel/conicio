@@ -24,15 +24,5 @@ public abstract class Light<C extends Color<C>> {
 	/**
 	 *
 	 **/
-	//public abstract double falloff(double distance);
-
-	/**
-	 *
-	 **/
-	public abstract boolean illuminated(Vector3 point, Scene<C> scene);
-
-	/**
-	 *
-	 **/
-	public abstract Collection<Ray> photons();
+	public abstract Iterable<Ray> photons();
 }
