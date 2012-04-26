@@ -78,7 +78,8 @@ public class Renderer<C extends Color<C>> implements Runnable {
 	 *
 	 **/
 	public void run() {
-		int photons = 500000;
+		//int photons = 500000;
+		int photons = 200000;
 	
 		System.out.println("Starting Photon Mapping!");
 		for(Light<C> light : scene.lights) {
@@ -110,7 +111,7 @@ public class Renderer<C extends Color<C>> implements Runnable {
 		double fovAdjust = xSize / (2.0 * Math.tan(camera.fov / 2.0));
 		Vector3 base = direction.normalize().mul(fovAdjust);
 
-		int samples = 2; // becomes multisampler
+		int samples = 1; // becomes multisampler
 		for(int y = 0; y < ySize; y++) {
 			for(int x = 0; x < xSize; x++) {
 				C color = scene.factory.black();
@@ -169,32 +170,35 @@ public class Renderer<C extends Color<C>> implements Runnable {
 			}
 			
 			if(Math.random() < intersected.material.specTransmitCoeff()) {
-				// FIXME: Dispersion!
-				double refractIndex = intersected.material.ior();
-
-				/* refract ray in to the object */
-				Vector3 inner = ray.normal.refract(intersected.normal(intersection), 1.0, refractIndex);
-				// FIXME: Verify! (It can't actually get in?)
-				if(inner == null) { return; }
-				Ray internal = new Ray(intersection, inner);
-
-				Ray external = null;
-				double[] candidates = internal.intersect(intersected);
-				if(candidates.length != 0) { 
-					intersection = internal.cast(candidates[0]);
-
-					/* refract ray out of the object */
-					// FIXME: Verify! (Total Internal Reflection is going to be a bitch to model with this structure...)
-					Vector3 outer = internal.normal.refract(intersected.normal(intersection).neg(), refractIndex, 1.0);
-					if(outer == null) { external = internal;                     }
-					else              { external = new Ray(intersection, outer); }
-				}
-				if(external == null) { return; }
+				Map<Ray, C> innerRefractions = intersected.material.refractTo(
+					ray, intersection, intersected.normal(intersection), photon
+				);
 				
-				specular = true;
-				ray = external;
-				photon = photon.mask(intersected.material.specTransmit).scale(1. / intersected.material.specTransmitCoeff());
-				// scale color by object's transmission
+				List<Map.Entry<Ray, C>> choices;
+				
+				choices = new ArrayList<Map.Entry<Ray, C>>(innerRefractions.entrySet());
+				if(choices.isEmpty()) { return; }
+				Map.Entry<Ray, C> innerEntry = choices.get((int)(Math.random() * choices.size()));
+		
+				double[] candidates = innerEntry.getKey().intersect(intersected);
+				if(candidates.length != 0) {
+					intersection = innerEntry.getKey().cast(candidates[0]);
+					Map<Ray, C> outerRefractions = intersected.material.refractFrom(
+						innerEntry.getKey(), intersection, intersected.normal(intersection), innerEntry.getValue()
+					);
+					
+					choices = new ArrayList<Map.Entry<Ray, C>>(outerRefractions.entrySet());
+					if(choices.isEmpty()) { return; }
+					Map.Entry<Ray, C> outerEntry = choices.get((int)(Math.random() * choices.size()));
+					
+					specular = true;
+					ray = outerEntry.getKey();
+					
+					C old = photon;
+					photon = outerEntry.getValue().mask(intersected.material.specTransmit);
+					photon = photon.scale(old.power() / outerEntry.getValue().power() / intersected.material.specTransmitCoeff());
+				}
+				else{ return; }
 			}
 			else {
 				double diffReflect = intersected.material.diffReflectCoeff();
@@ -296,10 +300,36 @@ public class Renderer<C extends Color<C>> implements Runnable {
 	 **/
 	// Model Total Internal Reflection!
 	protected C castRefractRay(Ray ray, Shape<C> intersected, Vector3 intersection, int depth) {
-		double refractIndex = intersected.material.ior();
+		//double refractIndex = intersected.material.ior();
 		if(intersected.material.specTransmit.equals(scene.factory.black())) { return scene.factory.black(); }
 
-		/* refract ray in to the object */
+		//-----
+		C color = scene.factory.black();
+		Map<Ray, C> innerRefractions = intersected.material.refractTo(
+			ray, intersection, intersected.normal(intersection), scene.factory.white()
+		);
+		
+		for(Map.Entry<Ray, C> innerEntry : innerRefractions.entrySet()) {
+			double[] candidates = innerEntry.getKey().intersect(intersected);
+			if(candidates.length != 0) {
+				intersection = innerEntry.getKey().cast(candidates[0]);
+				Map<Ray, C> outerRefractions = intersected.material.refractFrom(
+					innerEntry.getKey(), intersection, intersected.normal(intersection), innerEntry.getValue()
+				);
+				
+				C outerColor = scene.factory.black();
+				for(Map.Entry<Ray, C> outerEntry : outerRefractions.entrySet()) {
+					outerColor = outerColor.add(castPrimaryRay(outerEntry.getKey(), depth + 1).mask(outerEntry.getValue()));
+				}
+				
+				color = color.add(outerColor.mask(intersected.material.specTransmit));
+			}
+		}
+		
+		return color;
+		//-----
+		
+		/*
 		Vector3 inner = ray.normal.refract(intersected.normal(intersection), 1.0, refractIndex);
 		//if(inner == null) { return scene.factory.white(); }
 		if(inner == null) { return scene.factory.black(); }
@@ -310,7 +340,7 @@ public class Renderer<C extends Color<C>> implements Runnable {
 		if(candidates.length != 0) { 
 			intersection = internal.cast(candidates[0]);
 
-			/* refract ray out of the object */
+			// refract ray out of the object
 			Vector3 outer = internal.normal.refract(intersected.normal(intersection).neg(), refractIndex, 1.0);
 			if(outer == null) { external = internal;                     }
 			else              { external = new Ray(intersection, outer); }
@@ -326,6 +356,7 @@ public class Renderer<C extends Color<C>> implements Runnable {
 		//  masked.scale(Math.pow(Math.E, -(intersected.material.refract * dist));
 		
 		return masked;
+		*/
 	}
 
 	/**
@@ -397,16 +428,19 @@ public class Renderer<C extends Color<C>> implements Runnable {
 		
 		
 		double radius = 0.5;
+		//double radius = 0.2;
+		
 		C caustic = scene.factory.black();
-		for(Deposit deposit : photonMap.get(intersect, radius).values()) { 
-			//caustic = caustic.add(photon.scale(1. / (Math.PI * radius * radius *  photonMap.size()))); 
-			caustic = caustic.add(deposit.photon.scale(normal.dot(deposit.incident) / (Math.PI * radius * radius))); 
-		}
-		for(Deposit deposit : causticMap.get(intersect, radius).values()) { 
-			//caustic = caustic.add(photon.scale(1. / (Math.PI * radius * radius * causticMap.size()))); 
+		Collection<Deposit> photons = photonMap.get(intersect, radius).values();
+		for(Deposit deposit : photons) { 
 			caustic = caustic.add(deposit.photon.scale(normal.dot(deposit.incident) / (Math.PI * radius * radius))); 
 		}
 		
+		Collection<Deposit> caustics = causticMap.get(intersect, radius).values();
+		for(Deposit deposit : caustics) {
+			caustic = caustic.add(deposit.photon.scale(normal.dot(deposit.incident) / (Math.PI * radius * radius))); 
+		}
+
 		return intensity.add(caustic);
 	}
 	

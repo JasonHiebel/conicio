@@ -90,7 +90,7 @@ public class AreaLight<C extends Color<C>> extends Light<C> {
 			double y = Math.random();
 			
 			double theta = 2 * Math.PI * Math.random();
-			double phi   = Math.random() - 1;
+			double phi   = Math.acos(Math.random() - 1);
 			
 			return new Ray(
 				origin.add(axisX.mul(x)).add(axisY.mul(y)),

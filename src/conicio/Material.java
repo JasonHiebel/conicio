@@ -2,6 +2,8 @@ package conicio;
 
 import conicio.util.*;
 
+import java.util.*;
+
 /**
  * The ways light can interact with a material can be described based on two
  * sets; the first includes the properties diffuse, specular, and glossy and
@@ -57,8 +59,16 @@ public abstract class Material<C extends Color<C>> {
 	 **/
 	public abstract double specTransmitCoeff();
 	
+	public abstract double ior();
+	
+	/**
+	 * Simplify: Use one method, specify two shapes. If a shape is specified
+	 * as null, assume air.
+	 **/
+	public abstract Map<Ray, C> refractTo(Ray ray, Vector3 intersection, Vector3 normal, C color);
+	
 	/**
 	 *
 	 **/
-	public abstract double ior();
+	public abstract Map<Ray, C> refractFrom(Ray ray, Vector3 intersection, Vector3 normal, C color);
 }

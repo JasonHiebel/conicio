@@ -25,5 +25,10 @@ public interface Color<C> {
 	/**
 	 *
 	 **/
+	public double power();
+	
+	/**
+	 *
+	 **/
 	public int asRGB();
 }

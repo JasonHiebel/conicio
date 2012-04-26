@@ -63,6 +63,11 @@ public class RGBColor implements Color<RGBColor> {
 	}
 	
 	@Override
+	public double power() {
+		return r + g + b;
+	}
+	
+	@Override
 	public int asRGB() {
 		return rgb;
 	}
