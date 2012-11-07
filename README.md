@@ -1,1 +1,1 @@
-Conicio : A Raytracer Writen in Java
+Conicio : A ray tracer and photon mapper focusing on clarity and realism.
